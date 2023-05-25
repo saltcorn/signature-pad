@@ -1,0 +1,29 @@
+{
+  "name": "@saltcorn/signature-pad",
+  "version": "0.1.0",
+  "description": "Record signatures to file images",
+  "main": "index.js",
+  "dependencies": {
+    "@saltcorn/markup": "^0.8.5",
+    "@saltcorn/data": "^0.8.5"
+  },
+  "author": "Tom Nielsen",
+  "license": "MIT",
+  "repository": "github:saltcorn/signature-pad",
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "rules": {
+      "no-unused-vars": "off",
+      "no-case-declarations": "off",
+      "no-empty": "warn",
+      "no-fallthrough": "warn"
+    }
+  }
+}
