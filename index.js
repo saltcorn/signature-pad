@@ -57,7 +57,9 @@ const signature_pad = {
         const canvas = document.querySelector("canvas");
         window.theSignaturePad = new SignaturePad(canvas);
         $("div#signature-pad").closest("form").submit(()=>{
-          console.log(window.theSignaturePad.toDataURL("image/jpeg"))
+          $("#input${text_attr(
+            nm
+          )}").val(window.theSignaturePad.toDataURL("image/jpeg"))
         })
     `)
       )
