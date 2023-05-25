@@ -19,9 +19,7 @@ const path = require("path");
 
 const signature_pad = {
   isEdit: true,
-  multipartFormData: true,
-  valueIsFilename: true,
-
+  setsDataURL: true,
   configFields: async () => {
     const dirs = await File.allDirectories();
     return [
