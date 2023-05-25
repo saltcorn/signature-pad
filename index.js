@@ -8,6 +8,8 @@ const {
   div,
   text,
   text_attr,
+  canvas,
+  button,
 } = require("@saltcorn/markup/tags");
 const { link } = require("@saltcorn/markup");
 const { isNode } = require("@saltcorn/data/utils");
@@ -33,25 +35,32 @@ const signature_pad = {
   },
   run: (nm, file_name, attrs, cls, reqd, field) => {
     //console.log("in run attrs.files_accept_filter", attrs.files_accept_filter);
-    return (
-      text(file_name || "") +
-      (typeof attrs.files_accept_filter !== "undefined" ||
-      attrs.files_accept_filter !== null
-        ? input({
-            class: `${cls} ${field.class || ""}`,
-            "data-fieldname": field.form_name,
-            name: text_attr(nm),
-            id: `input${text_attr(nm)}`,
-            type: "file",
-            accept: attrs.files_accept_filter,
-          })
-        : input({
-            class: `${cls} ${field.class || ""}`,
-            "data-fieldname": field.form_name,
-            name: text_attr(nm),
-            id: `input${text_attr(nm)}`,
-            type: "file",
-          }))
+    return div(
+      { id: "signature-pad" },
+      canvas({ class: "border" }),
+      input({
+        type: "hidden",
+        "data-fieldname": field.form_name,
+        name: text_attr(nm),
+        id: `input${text_attr(nm)}`,
+      }),
+      button(
+        {
+          class: "btn btn-sm btn-secondary d-block",
+          type: "button",
+          onClick: "window.theSignaturePad.clear()",
+        },
+        "Clear"
+      ),
+      script(
+        domReady(`
+        const canvas = document.querySelector("canvas");
+        window.theSignaturePad = new SignaturePad(canvas);
+        $("div#signature-pad").closest("form").submit(()=>{
+          console.log(window.theSignaturePad.toDataURL("image/jpeg"))
+        })
+    `)
+      )
     );
   },
 };
@@ -66,5 +75,5 @@ module.exports = {
   ],
   sc_plugin_api_version: 1,
   plugin_name: "signature-pad",
-  fileviews: { signature_pad },
+  fileviews: { "Signature Pad": signature_pad },
 };
