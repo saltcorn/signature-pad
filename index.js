@@ -19,7 +19,10 @@ const path = require("path");
 
 const signature_pad = {
   isEdit: true,
-  setsDataURL: true,
+  setsDataURL: {
+    get_filename: ({ id }) => (id ? `signature${id}.png` : "signature.png"),
+    get_folder: ({ folder }) => folder,
+  },
   configFields: async () => {
     const dirs = await File.allDirectories();
     return [
@@ -55,9 +58,7 @@ const signature_pad = {
         const canvas = document.querySelector("canvas");
         window.theSignaturePad = new SignaturePad(canvas);
         $("div#signature-pad").closest("form").submit(()=>{
-          $("#input${text_attr(
-            nm
-          )}").val(window.theSignaturePad.toDataURL("image/jpeg"))
+          $("#input${text_attr(nm)}").val(window.theSignaturePad.toDataURL())
         })
     `)
       )
