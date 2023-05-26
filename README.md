@@ -1,6 +1,6 @@
 # signature-pad
 
-Record signatures to file images
+Record signatures to file images, based on the [signature_pad library](https://github.com/szimek/signature_pad)
 
 ## How to use
 
