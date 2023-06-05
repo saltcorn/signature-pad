@@ -57,8 +57,16 @@ const signature_pad = {
         domReady(`
         const canvas = document.querySelector("canvas");
         window.theSignaturePad = new SignaturePad(canvas);
-        $("div#signature-pad").closest("form").submit(()=>{
-          $("#input${text_attr(nm)}").val(window.theSignaturePad.toDataURL())
+        const form = $("div#signature-pad").closest("form");
+        const isNode = typeof parent.saltcorn === "undefined";
+        if (!isNode)
+          form.attr('onsubmit', 'javascript:void(0)');
+        form.submit(()=>{
+          $("#input${text_attr(nm)}").val(window.theSignaturePad.toDataURL());
+          if (!isNode) {
+            const locTokens = parent.currentLocation().split("/");
+            formSubmit(form[0], '/view/', locTokens[locTokens.length - 1], true);
+          }
         })
     `)
       )
