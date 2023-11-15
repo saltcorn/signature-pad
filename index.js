@@ -59,6 +59,10 @@ const signature_pad = {
         window.theSignaturePad = new SignaturePad(canvas);
         const form = $("div#signature-pad").closest("form");
         const isNode = typeof parent.saltcorn === "undefined";
+        window.theSignaturePad.addEventListener("endStroke", () => {
+          $("#input${text_attr(nm)}").val(window.theSignaturePad.toDataURL());
+          form.trigger("change");
+        });      
         if (!isNode)
           form.attr('onsubmit', 'javascript:void(0)');
         form.submit(()=>{
