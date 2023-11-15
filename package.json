@@ -1,6 +1,6 @@
 {
   "name": "@saltcorn/signature-pad",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Record signatures to file images",
   "main": "index.js",
   "dependencies": {
