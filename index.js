@@ -37,7 +37,7 @@ const signature_pad = {
   run: (nm, file_name, attrs, cls, reqd, field) => {
     //console.log("in run attrs.files_accept_filter", attrs.files_accept_filter);
     return div(
-      { id: "signature-pad" },
+      { id: `signature-pad-${nm}` },
       canvas({ class: "border" }),
       input({
         type: "hidden",
@@ -55,18 +55,22 @@ const signature_pad = {
       ),
       script(
         domReady(`
-        const canvas = document.querySelector("canvas");
-        window.theSignaturePad = new SignaturePad(canvas);
-        const form = $("div#signature-pad").closest("form");
+        const canvas = document.querySelector("div#signature-pad-${nm} canvas");
+        window.theSignaturePad_${nm} = new SignaturePad(canvas);
+        const form = $("div#signature-pad-${nm}").closest("form");
         const isNode = typeof parent.saltcorn === "undefined";
-        window.theSignaturePad.addEventListener("endStroke", () => {
-          $("#input${text_attr(nm)}").val(window.theSignaturePad.toDataURL());
+        window.theSignaturePad_${nm}.addEventListener("endStroke", () => {
+          $("#input${text_attr(
+            nm
+          )}").val(window.theSignaturePad_${nm}.toDataURL());
           form.trigger("change");
         });      
         if (!isNode)
           form.attr('onsubmit', 'javascript:void(0)');
         form.submit(()=>{
-          $("#input${text_attr(nm)}").val(window.theSignaturePad.toDataURL());
+          $("#input${text_attr(
+            nm
+          )}").val(window.theSignaturePad_${nm}.toDataURL());
           if (!isNode) {
             const locTokens = parent.currentLocation().split("/");
             formSubmit(form[0], '/view/', locTokens[locTokens.length - 1], true);
