@@ -49,7 +49,11 @@ const signature_pad = {
         {
           class: "btn btn-sm btn-secondary d-block",
           type: "button",
-          onClick: "window.theSignaturePad.clear()",
+          onClick: `window.theSignaturePad_${nm}.clear();$('#input${text_attr(
+            nm
+          )}').val('');$('#input${text_attr(
+            nm
+          )}').closest('form').trigger('change');`,
         },
         "Clear"
       ),
