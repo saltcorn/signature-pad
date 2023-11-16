@@ -15,7 +15,9 @@ const { link } = require("@saltcorn/markup");
 const { isNode } = require("@saltcorn/data/utils");
 const { select_options } = require("@saltcorn/markup/helpers");
 const File = require("@saltcorn/data/models/file");
+const db = require("@saltcorn/data/db");
 const path = require("path");
+const fs = require("fs");
 
 const signature_pad = {
   isEdit: true,
@@ -36,6 +38,18 @@ const signature_pad = {
   },
   run: (nm, file_name, attrs, cls, reqd, field) => {
     //console.log("in run attrs.files_accept_filter", attrs.files_accept_filter);
+    let existing = null;
+    try {
+      const tenant = db.getTenantSchema();
+      const safeFile = File.normalise(file_name);
+      const absPath = path.join(db.connectObj.file_store, tenant, safeFile);
+      const contents = fs.readFileSync(absPath);
+      const b64 = contents.toString("base64");
+      existing = `data:image/png;base64,${b64}`;
+    } catch (e) {
+      //ignore
+      console.error("signature-pad existing error", e);
+    }
     return div(
       { id: `signature-pad-${nm}` },
       canvas({ class: "border" }),
@@ -44,6 +58,7 @@ const signature_pad = {
         "data-fieldname": field.form_name,
         name: text_attr(nm),
         id: `input${text_attr(nm)}`,
+        disabled: !!existing,
       }),
       button(
         {
@@ -61,12 +76,19 @@ const signature_pad = {
         domReady(`
         const canvas = document.querySelector("div#signature-pad-${nm} canvas");
         window.theSignaturePad_${nm} = new SignaturePad(canvas);
+        ${
+          existing
+            ? `
+        window.theSignaturePad_${nm}.fromDataURL("${existing}")
+        `
+            : ""
+        }
         const form = $("div#signature-pad-${nm}").closest("form");
         const isNode = typeof parent.saltcorn === "undefined";
         window.theSignaturePad_${nm}.addEventListener("endStroke", () => {
           $("#input${text_attr(
             nm
-          )}").val(window.theSignaturePad_${nm}.toDataURL());
+          )}").val(window.theSignaturePad_${nm}.toDataURL()).prop("disabled", false);
           form.trigger("change");
         });      
         if (!isNode)
