@@ -58,7 +58,7 @@ const signature_pad = {
         "data-fieldname": field.form_name,
         name: text_attr(nm),
         id: `input${text_attr(nm)}`,
-        disabled: !!existing,
+        value: file_name || false,
       }),
       button(
         {
@@ -88,7 +88,7 @@ const signature_pad = {
         window.theSignaturePad_${nm}.addEventListener("endStroke", () => {
           $("#input${text_attr(
             nm
-          )}").val(window.theSignaturePad_${nm}.toDataURL()).prop("disabled", false);
+          )}").val(window.theSignaturePad_${nm}.toDataURL());
           form.trigger("change");
         });      
         if (!isNode)
