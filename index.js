@@ -39,17 +39,18 @@ const signature_pad = {
   run: (nm, file_name, attrs, cls, reqd, field) => {
     //console.log("in run attrs.files_accept_filter", attrs.files_accept_filter);
     let existing = null;
-    try {
-      const tenant = db.getTenantSchema();
-      const safeFile = File.normalise(file_name);
-      const absPath = path.join(db.connectObj.file_store, tenant, safeFile);
-      const contents = fs.readFileSync(absPath);
-      const b64 = contents.toString("base64");
-      existing = `data:image/png;base64,${b64}`;
-    } catch (e) {
-      //ignore
-      console.error("signature-pad existing error", e);
-    }
+    if (file_name)
+      try {
+        const tenant = db.getTenantSchema();
+        const safeFile = File.normalise(file_name);
+        const absPath = path.join(db.connectObj.file_store, tenant, safeFile);
+        const contents = fs.readFileSync(absPath);
+        const b64 = contents.toString("base64");
+        existing = `data:image/png;base64,${b64}`;
+      } catch (e) {
+        //ignore
+        console.error("signature-pad existing error", e);
+      }
     return div(
       { id: `signature-pad-${nm}` },
       canvas({ class: "border" }),
