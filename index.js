@@ -19,6 +19,78 @@ const db = require("@saltcorn/data/db");
 const path = require("path");
 const fs = require("fs");
 
+const signature_pad_base64_img = {
+  isEdit: true,
+  type: "HTML",
+  blockDisplay: true,
+  handlesTextStyle: true,
+  run: (nm, v, attrs, cls) => {
+    let existing = false;
+    if (v && typeof v === "string") {
+      const match = v.match(/<img[^>]+src="([^">]+)"/);
+      console.log("sigpad v", match[1]);
+      if (match?.[1]) {
+        existing = match?.[1];
+      }
+    }
+    return div(
+      { id: `signature-pad-${nm}` },
+      canvas({ class: "border" }),
+      input({
+        type: "hidden",
+        "data-fieldname": nm,
+        name: text_attr(nm),
+        id: `input${text_attr(nm)}`,
+        value: existing,
+      }),
+      button(
+        {
+          class: "btn btn-sm btn-secondary d-block",
+          type: "button",
+          onClick: `window.theSignaturePad_${nm}.clear();$('#input${text_attr(
+            nm
+          )}').val('');$('#input${text_attr(
+            nm
+          )}').closest('form').trigger('change');`,
+        },
+        "Clear"
+      ),
+      script(
+        domReady(`
+        const canvas = document.querySelector("div#signature-pad-${nm} canvas");
+        window.theSignaturePad_${nm} = new SignaturePad(canvas);
+        ${
+          existing
+            ? `
+        window.theSignaturePad_${nm}.fromDataURL("${existing}")
+        `
+            : ""
+        }
+        const form = $("div#signature-pad-${nm}").closest("form");
+        const isNode = typeof parent.saltcorn === "undefined";
+        window.theSignaturePad_${nm}.addEventListener("endStroke", () => {
+          $("#input${text_attr(
+            nm
+          )}").val('<img src="'+window.theSignaturePad_${nm}.toDataURL()+'" />');
+          form.trigger("change");
+        });      
+        if (!isNode)
+          form.attr('onsubmit', 'javascript:void(0)');
+        form.submit(()=>{
+          $("#input${text_attr(
+            nm
+          )}").val('<img src="'+window.theSignaturePad_${nm}.toDataURL()+'" />');
+          if (!isNode) {
+            const locTokens = parent.currentLocation().split("/");
+            formSubmit(form[0], '/view/', locTokens[locTokens.length - 1], true);
+          }
+        })
+    `)
+      )
+    );
+  },
+};
+
 const signature_pad = {
   isEdit: true,
   setsDataURL: {
@@ -120,4 +192,5 @@ module.exports = {
   sc_plugin_api_version: 1,
   plugin_name: "signature-pad",
   fileviews: { "Signature Pad": signature_pad },
+  fieldviews: { signature_pad_base64_img },
 };
