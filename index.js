@@ -134,6 +134,7 @@ const signature_pad = {
   run: (nm, file_name, attrs, cls, reqd, field) => {
     //console.log("in run attrs.files_accept_filter", attrs.files_accept_filter);
     let existing = null;
+    let bgImage = null;
     if (file_name)
       try {
         const tenant = db.getTenantSchema();
@@ -146,14 +147,15 @@ const signature_pad = {
         //ignore
         console.error("signature-pad existing error", e);
       }
-    else if (attrs?.background_image)
+    if (attrs?.background_image)
       try {
         const tenant = db.getTenantSchema();
         const safeFile = File.normalise(attrs?.background_image);
         const absPath = path.join(db.connectObj.file_store, tenant, safeFile);
         const contents = fs.readFileSync(absPath);
         const b64 = contents.toString("base64");
-        existing = `data:image/png;base64,${b64}`;
+        bgImage = `data:image/png;base64,${b64}`;
+        if (!existing) existing = bgImage;
       } catch (e) {
         //ignore
         console.error("signature-pad background image error", e);
@@ -176,27 +178,30 @@ const signature_pad = {
         {
           class: "btn btn-sm btn-secondary d-block",
           type: "button",
-          onClick: `window.theSignaturePad_${nm}.clear();$('#input${text_attr(
-            nm
-          )}').val('');$('#input${text_attr(
-            nm
-          )}').closest('form').trigger('change');`,
+          onClick: `theSignaturePad_${nm}_clear()`,
         },
         "Clear"
       ),
       script(
         domReady(`
         const canvas = document.querySelector("div#signature-pad-${nm} canvas");
+        const existing = ${existing ? `"${existing}"` : "null"}
+        window.theSignaturePad_${nm}_clear = () => {
+          window.theSignaturePad_${nm}.clear();
+          $('#input${text_attr(nm)}').val('');
+          $('#input${text_attr(nm)}').closest('form').trigger('change');
+          ${
+            attrs.background_image && file_name
+              ? `window.theSignaturePad_${nm}.fromDataURL("${bgImage}");`
+              : attrs.background_image
+              ? `window.theSignaturePad_${nm}.fromDataURL(existing);`
+              : ""
+          }
+        }
         window.theSignaturePad_${nm} = new SignaturePad(canvas, {
           ${attrs.pen_color ? `penColor: "${attrs.pen_color}",` : ""}
         });
-        ${
-          existing
-            ? `
-        window.theSignaturePad_${nm}.fromDataURL("${existing}")
-        `
-            : ""
-        }
+        ${existing ? `window.theSignaturePad_${nm}.fromDataURL(existing);` : ""}
         const form = $("div#signature-pad-${nm}").closest("form");
         const isNode = typeof parent.saltcorn === "undefined";
         window.theSignaturePad_${nm}.addEventListener("endStroke", () => {
