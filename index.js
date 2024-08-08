@@ -99,12 +99,19 @@ const signature_pad = {
   },
   configFields: async () => {
     const dirs = await File.allDirectories();
+    const images = await File.find({ mime_super: "image" });
     return [
       {
         name: "folder",
         label: "Folder",
         type: "String",
         attributes: { options: dirs.map((d) => d.path_to_serve) },
+      },
+      {
+        name: "background_image",
+        label: "Background image",
+        type: "String",
+        attributes: { options: images.map((d) => d.path_to_serve) },
       },
     ];
   },
@@ -122,6 +129,18 @@ const signature_pad = {
       } catch (e) {
         //ignore
         console.error("signature-pad existing error", e);
+      }
+    else if (attrs?.background_image)
+      try {
+        const tenant = db.getTenantSchema();
+        const safeFile = File.normalise(attrs?.background_image);
+        const absPath = path.join(db.connectObj.file_store, tenant, safeFile);
+        const contents = fs.readFileSync(absPath);
+        const b64 = contents.toString("base64");
+        existing = `data:image/png;base64,${b64}`;
+      } catch (e) {
+        //ignore
+        console.error("signature-pad background image error", e);
       }
     return div(
       { id: `signature-pad-${nm}` },
