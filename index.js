@@ -113,6 +113,12 @@ const signature_pad = {
         type: "String",
         attributes: { options: images.map((d) => d.path_to_serve) },
       },
+      {
+        name: "pen_color",
+        label: "Pen color",
+        sublabel: "Valid CSS color",
+        type: "String",
+      },
     ];
   },
   run: (nm, file_name, attrs, cls, reqd, field) => {
@@ -167,7 +173,9 @@ const signature_pad = {
       script(
         domReady(`
         const canvas = document.querySelector("div#signature-pad-${nm} canvas");
-        window.theSignaturePad_${nm} = new SignaturePad(canvas);
+        window.theSignaturePad_${nm} = new SignaturePad(canvas, {
+          ${attrs.pen_color ? `penColor: "${attrs.pen_color}",` : ""}
+        });
         ${
           existing
             ? `
