@@ -119,6 +119,16 @@ const signature_pad = {
         sublabel: "Valid CSS color",
         type: "String",
       },
+      {
+        name: "height",
+        label: "Height (px)",
+        type: "Integer",
+      },
+      {
+        name: "width",
+        label: "Width (px)",
+        type: "Integer",
+      },
     ];
   },
   run: (nm, file_name, attrs, cls, reqd, field) => {
@@ -150,7 +160,11 @@ const signature_pad = {
       }
     return div(
       { id: `signature-pad-${nm}` },
-      canvas({ class: "border" }),
+      canvas({
+        class: "border",
+        height: attrs?.height || undefined,
+        width: attrs?.width || undefined,
+      }),
       input({
         type: "hidden",
         "data-fieldname": field.form_name,
