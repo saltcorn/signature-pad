@@ -27,8 +27,7 @@ const signature_pad_base64_img = {
   run: (nm, v, attrs, cls) => {
     let existing = false;
     if (v && typeof v === "string") {
-      const match = v.match(/<img[^>]+src="([^">]+)"/);
-      console.log("sigpad v", match[1]);
+      const match = v.match(/<img[^>]+src="([^">]+)"/);      
       if (match?.[1]) {
         existing = match?.[1];
       }
